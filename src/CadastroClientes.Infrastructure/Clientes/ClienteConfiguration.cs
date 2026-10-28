@@ -22,7 +22,8 @@ internal sealed class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
             .IsRequired();
         builder.Property(c => c.CriadoEm).IsRequired();
 
-        // Garante a unicidade mesmo com duas requisições simultâneas para o mesmo CPF
+        // Garantem a unicidade mesmo com duas requisições simultâneas para o mesmo CPF ou e-mail
         builder.HasIndex(c => c.Cpf).IsUnique();
+        builder.HasIndex(c => c.Email).IsUnique();
     }
 }

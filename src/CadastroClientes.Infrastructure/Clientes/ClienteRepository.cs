@@ -15,5 +15,8 @@ internal sealed class ClienteRepository(CadastroDbContext context) : IClienteRep
     public Task<bool> ExisteComCpfAsync(string cpf, CancellationToken cancellationToken = default) =>
         context.Set<Cliente>().AnyAsync(c => c.Cpf == cpf, cancellationToken);
 
+    public Task<bool> ExisteComEmailAsync(string email, CancellationToken cancellationToken = default) =>
+        context.Set<Cliente>().AnyAsync(c => c.Email == email, cancellationToken);
+
     public void Adicionar(Cliente cliente) => context.Set<Cliente>().Add(cliente);
 }

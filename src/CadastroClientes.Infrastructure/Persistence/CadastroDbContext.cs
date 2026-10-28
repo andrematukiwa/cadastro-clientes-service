@@ -14,12 +14,20 @@ public sealed class CadastroDbContext(DbContextOptions<CadastroDbContext> option
         {
             await SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgres)
         {
             // Corrida entre a checagem prévia e o insert: o índice único é a garantia final
-            throw new ConflictException("Registro duplicado: já existe um cadastro com estes dados.");
+            throw new ConflictException(MensagemDeDuplicidade(postgres.ConstraintName));
         }
     }
+
+    /// <summary>Usa o nome do índice violado para dizer qual campo está duplicado.</summary>
+    private static string MensagemDeDuplicidade(string? constraint) => constraint switch
+    {
+        "ix_clientes_cpf" => "Já existe um cliente cadastrado com este CPF.",
+        "ix_clientes_email" => "Já existe um cliente cadastrado com este e-mail.",
+        _ => "Registro duplicado: já existe um cadastro com estes dados."
+    };
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

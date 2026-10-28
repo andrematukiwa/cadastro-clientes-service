@@ -28,6 +28,9 @@ public sealed partial class ClienteService(
         if (await repository.ExisteComCpfAsync(Cpf.Normalizar(request.Cpf), cancellationToken))
             throw new ConflictException("Já existe um cliente cadastrado com este CPF.");
 
+        if (await repository.ExisteComEmailAsync(Cliente.NormalizarEmail(request.Email), cancellationToken))
+            throw new ConflictException("Já existe um cliente cadastrado com este e-mail.");
+
         var cliente = Cliente.Criar(
             request.Nome,
             request.Cpf,

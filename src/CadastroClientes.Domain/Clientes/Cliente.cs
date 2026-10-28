@@ -36,7 +36,7 @@ public sealed class Cliente
             Nome = nome.Trim(),
             // "Common.Cpf" porque a propriedade Cpf desta classe esconde o nome da classe Cpf
             Cpf = Common.Cpf.Normalizar(cpf),
-            Email = email.Trim().ToLowerInvariant(),
+            Email = NormalizarEmail(email),
             DataNascimento = dataNascimento,
             // Multiplicar por 1.00m fixa a escala em 2 casas (5000 → 5000.00), igual ao banco
             RendaMensal = decimal.Round(rendaMensal, RendaCasasDecimais) * 1.00m,
@@ -44,6 +44,12 @@ public sealed class Cliente
             CriadoEm = TruncarParaMicrossegundos(criadoEm)
         };
     }
+
+    /// <summary>
+    /// Forma canônica do e-mail (sem espaços, minúsculo). Usada ao gravar e ao checar duplicidade,
+    /// para "Maria@Email.com" e "maria@email.com" serem o mesmo cliente.
+    /// </summary>
+    public static string NormalizarEmail(string email) => email.Trim().ToLowerInvariant();
 
     private static DateTime TruncarParaMicrossegundos(DateTime data) =>
         new(data.Ticks - data.Ticks % (TimeSpan.TicksPerMillisecond / 1000), DateTimeKind.Utc);

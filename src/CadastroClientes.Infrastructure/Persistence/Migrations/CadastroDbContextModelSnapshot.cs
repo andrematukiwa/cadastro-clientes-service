@@ -68,6 +68,10 @@ namespace CadastroClientes.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_clientes_cpf");
 
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_clientes_email");
+
                     b.ToTable("clientes", (string)null);
                 });
 
