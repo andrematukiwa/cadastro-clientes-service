@@ -6,6 +6,6 @@ namespace CadastroClientes.Application.Common.Abstractions;
 /// </summary>
 public interface IEventPublisher
 {
-    Task PublicarAsync<TEvento>(TEvento evento, CancellationToken cancellationToken = default)
-        where TEvento : class;
+    Task PublishAsync<TEvent>(TEvent message, CancellationToken cancellationToken = default)
+        where TEvent : class;
 }

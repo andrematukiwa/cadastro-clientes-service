@@ -9,7 +9,7 @@ public static class MigrationExtensions
     /// Aplica as migrations pendentes. Usado no ambiente local/docker para o projeto subir com
     /// um único comando; em produção as migrations rodariam no pipeline de deploy.
     /// </summary>
-    public static async Task AplicarMigrationsAsync(this IServiceProvider services)
+    public static async Task ApplyMigrationsAsync(this IServiceProvider services)
     {
         await using var scope = services.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<CadastroDbContext>();

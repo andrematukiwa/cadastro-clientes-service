@@ -11,11 +11,12 @@ using Microsoft.Extensions.Logging;
 
 namespace CadastroClientes.Application.Clientes.Services;
 
-public sealed class ClienteService(
+public sealed partial class ClienteService(
     IValidator<CadastrarClienteRequest> validator,
     IClienteRepository repository,
     IEventPublisher eventPublisher,
     IUnitOfWork unitOfWork,
+    TimeProvider timeProvider,
     ILogger<ClienteService> logger) : IClienteService
 {
     public async Task<ClienteResponse> CadastrarAsync(
@@ -32,10 +33,11 @@ public sealed class ClienteService(
             request.Cpf,
             request.Email,
             request.DataNascimento,
-            request.RendaMensal);
+            request.RendaMensal,
+            timeProvider.GetUtcNow().UtcDateTime);
 
-        await repository.AdicionarAsync(cliente, cancellationToken);
-        await eventPublisher.PublicarAsync(
+        repository.Adicionar(cliente);
+        await eventPublisher.PublishAsync(
             new ClienteCadastrado(
                 cliente.Id,
                 cliente.Nome,
@@ -47,7 +49,7 @@ public sealed class ClienteService(
         // Cliente e evento (Outbox) são gravados na mesma transação
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Cliente {ClienteId} cadastrado", cliente.Id);
+        LogClienteCadastrado(logger, cliente.Id);
 
         return ClienteResponse.De(cliente);
     }
@@ -59,4 +61,7 @@ public sealed class ClienteService(
 
         return ClienteResponse.De(cliente);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Cliente {ClienteId} cadastrado")]
+    private static partial void LogClienteCadastrado(ILogger logger, Guid clienteId);
 }

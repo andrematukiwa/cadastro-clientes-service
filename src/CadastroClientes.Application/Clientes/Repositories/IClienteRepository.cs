@@ -8,5 +8,6 @@ public interface IClienteRepository
 
     Task<bool> ExisteComCpfAsync(string cpf, CancellationToken cancellationToken = default);
 
-    Task AdicionarAsync(Cliente cliente, CancellationToken cancellationToken = default);
+    /// <summary>Marca o cliente para inclusão; a gravação acontece em <c>IUnitOfWork.SaveChangesAsync</c>.</summary>
+    void Adicionar(Cliente cliente);
 }

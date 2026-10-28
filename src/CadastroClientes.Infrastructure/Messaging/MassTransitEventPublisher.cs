@@ -9,7 +9,7 @@ namespace CadastroClientes.Infrastructure.Messaging;
 /// </summary>
 internal sealed class MassTransitEventPublisher(IPublishEndpoint publishEndpoint) : IEventPublisher
 {
-    public Task PublicarAsync<TEvento>(TEvento evento, CancellationToken cancellationToken = default)
-        where TEvento : class =>
-        publishEndpoint.Publish(evento, cancellationToken);
+    public Task PublishAsync<TEvent>(TEvent message, CancellationToken cancellationToken = default)
+        where TEvent : class =>
+        publishEndpoint.Publish(message, cancellationToken);
 }

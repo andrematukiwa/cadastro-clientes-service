@@ -1,3 +1,47 @@
-@CadastroClientes.Api_HostAddress = http://localhost:5138
+@baseUrl = http://localhost:5138/api/v1/clientes
 
-###
+### Cadastrar cliente (score alto: renda >= 5.000 e 25-60 anos → 2 cartões)
+# @name cadastro
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nome": "Maria Silva",
+  "cpf": "529.982.247-25",
+  "email": "maria.silva@email.com",
+  "dataNascimento": "1990-05-10",
+  "rendaMensal": 5000.00
+}
+
+### Consultar o cliente cadastrado acima
+GET {{baseUrl}}/{{cadastro.response.body.$.id}}
+
+### Cadastrar com o mesmo CPF → 409 Conflict
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nome": "Outra Pessoa",
+  "cpf": "52998224725",
+  "email": "outra@email.com",
+  "dataNascimento": "1985-01-01",
+  "rendaMensal": 3000.00
+}
+
+### Dados inválidos → 400 com todos os erros por campo
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nome": "",
+  "cpf": "111.111.111-11",
+  "email": "email-invalido",
+  "dataNascimento": "2015-01-01",
+  "rendaMensal": 0
+}
+
+### Cliente inexistente → 404
+GET {{baseUrl}}/00000000-0000-0000-0000-000000000000
+
+### Health check (Postgres + RabbitMQ)
+GET http://localhost:5138/health

@@ -21,4 +21,4 @@ public sealed record ClienteCadastrado(
     string Nome,
     DateOnly DataNascimento,
     decimal RendaMensal,
-    DateTime CadastradoEm);
+    DateTime CriadoEm);

@@ -13,11 +13,13 @@ internal sealed class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
 
         builder.HasKey(c => c.Id);
 
-        builder.Property(c => c.Nome).HasMaxLength(150).IsRequired();
+        builder.Property(c => c.Nome).HasMaxLength(Cliente.NomeTamanhoMaximo).IsRequired();
         builder.Property(c => c.Cpf).HasMaxLength(Cpf.Tamanho).IsFixedLength().IsRequired();
-        builder.Property(c => c.Email).HasMaxLength(254).IsRequired();
+        builder.Property(c => c.Email).HasMaxLength(Cliente.EmailTamanhoMaximo).IsRequired();
         builder.Property(c => c.DataNascimento).IsRequired();
-        builder.Property(c => c.RendaMensal).HasPrecision(18, 2).IsRequired();
+        builder.Property(c => c.RendaMensal)
+            .HasPrecision(Cliente.RendaPrecisao, Cliente.RendaCasasDecimais)
+            .IsRequired();
         builder.Property(c => c.CriadoEm).IsRequired();
 
         // Garante a unicidade mesmo com duas requisições simultâneas para o mesmo CPF

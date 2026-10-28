@@ -1,4 +1,4 @@
-using CadastroClientes.Api.Middlewares;
+using CadastroClientes.Api.Errors;
 using CadastroClientes.Application;
 using CadastroClientes.Infrastructure;
 using CadastroClientes.Infrastructure.Persistence;
@@ -7,17 +7,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddProblemDetails();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddErrorHandling();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Configuration.GetValue<bool>("Database:AplicarMigrationsNoStartup"))
-    await app.Services.AplicarMigrationsAsync();
+if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+    await app.Services.ApplyMigrationsAsync();
 
 app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {

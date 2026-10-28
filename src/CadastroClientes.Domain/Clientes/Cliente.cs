@@ -1,7 +1,13 @@
 namespace CadastroClientes.Domain.Clientes;
 
-public class Cliente
+public sealed class Cliente
 {
+    // Limites compartilhados entre a validação de entrada e o mapeamento do banco
+    public const int NomeTamanhoMaximo = 150;
+    public const int EmailTamanhoMaximo = 254;
+    public const int RendaPrecisao = 18;
+    public const int RendaCasasDecimais = 2;
+
     public Guid Id { get; private set; }
     public string Nome { get; private set; } = string.Empty;
     public string Cpf { get; private set; } = string.Empty;
@@ -21,7 +27,8 @@ public class Cliente
         string cpf,
         string email,
         DateOnly dataNascimento,
-        decimal rendaMensal)
+        decimal rendaMensal,
+        DateTime criadoEm)
     {
         return new Cliente
         {
@@ -31,8 +38,13 @@ public class Cliente
             Cpf = Common.Cpf.Normalizar(cpf),
             Email = email.Trim().ToLowerInvariant(),
             DataNascimento = dataNascimento,
-            RendaMensal = rendaMensal,
-            CriadoEm = DateTime.UtcNow
+            // Multiplicar por 1.00m fixa a escala em 2 casas (5000 → 5000.00), igual ao banco
+            RendaMensal = decimal.Round(rendaMensal, RendaCasasDecimais) * 1.00m,
+            // O Postgres guarda microssegundos: truncar aqui evita a resposta do POST divergir do GET
+            CriadoEm = TruncarParaMicrossegundos(criadoEm)
         };
     }
+
+    private static DateTime TruncarParaMicrossegundos(DateTime data) =>
+        new(data.Ticks - data.Ticks % (TimeSpan.TicksPerMillisecond / 1000), DateTimeKind.Utc);
 }

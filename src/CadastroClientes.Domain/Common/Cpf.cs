@@ -1,9 +1,11 @@
+using System.Text.RegularExpressions;
+
 namespace CadastroClientes.Domain.Common;
 
 /// <summary>
-/// Regras do CPF: normalização (apenas dígitos) e validação dos dígitos verificadores.
+/// Regras do CPF: formato aceito, normalização (apenas dígitos) e validação dos dígitos verificadores.
 /// </summary>
-public static class Cpf
+public static partial class Cpf
 {
     public const int Tamanho = 11;
 
@@ -12,10 +14,15 @@ public static class Cpf
 
     public static bool EhValido(string? cpf)
     {
+        // Só aceita "52998224725" ou "529.982.247-25": qualquer outro caractere invalida,
+        // em vez de ser descartado pela normalização
+        if (cpf is null || !FormatoAceito().IsMatch(cpf))
+            return false;
+
         var digitos = Normalizar(cpf);
 
         // CPFs com todos os dígitos iguais (111.111.111-11) passam no cálculo, mas são inválidos
-        if (digitos.Length != Tamanho || digitos.Distinct().Count() == 1)
+        if (digitos.Distinct().Count() == 1)
             return false;
 
         var numeros = digitos.Select(c => c - '0').ToArray();
@@ -46,4 +53,7 @@ public static class Cpf
         var resto = soma % 11;
         return resto < 2 ? 0 : 11 - resto;
     }
+
+    [GeneratedRegex(@"^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$")]
+    private static partial Regex FormatoAceito();
 }
