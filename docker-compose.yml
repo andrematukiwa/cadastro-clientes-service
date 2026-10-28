@@ -1,4 +1,22 @@
 services:
+  cadastro-api:
+    build: .
+    container_name: cadastro-api
+    environment:
+      # Development habilita o Swagger e a aplicação automática das migrations
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__CadastroDb: "Host=postgres;Port=5432;Database=cadastro;Username=postgres;Password=postgres"
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Username: guest
+      RabbitMq__Password: guest
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
   postgres:
     image: postgres:17-alpine
     container_name: cadastro-postgres
