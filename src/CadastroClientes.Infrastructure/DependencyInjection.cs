@@ -1,3 +1,6 @@
+using CadastroClientes.Application.Clientes.Repositories;
+using CadastroClientes.Application.Common.Abstractions;
+using CadastroClientes.Infrastructure.Clientes;
 using CadastroClientes.Infrastructure.Messaging;
 using CadastroClientes.Infrastructure.Persistence;
 using MassTransit;
@@ -13,6 +16,11 @@ public static class DependencyInjection
     {
         services.AddDbContext<CadastroDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("CadastroDb")));
+
+        // Mesma instância (por requisição) do DbContext: repositórios e Outbox na mesma transação
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CadastroDbContext>());
+        services.AddScoped<IClienteRepository, ClienteRepository>();
+        services.AddScoped<IEventPublisher, MassTransitEventPublisher>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<CadastroDbContext>("postgres");

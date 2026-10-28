@@ -1,0 +1,15 @@
+using CadastroClientes.Application.Common.Abstractions;
+using MassTransit;
+
+namespace CadastroClientes.Infrastructure.Messaging;
+
+/// <summary>
+/// Com o Bus Outbox ativo, o IPublishEndpoint com escopo da requisição não envia direto ao
+/// RabbitMQ: grava a mensagem no Outbox do DbContext, e ela só é entregue após o commit.
+/// </summary>
+internal sealed class MassTransitEventPublisher(IPublishEndpoint publishEndpoint) : IEventPublisher
+{
+    public Task PublicarAsync<TEvento>(TEvento evento, CancellationToken cancellationToken = default)
+        where TEvento : class =>
+        publishEndpoint.Publish(evento, cancellationToken);
+}
