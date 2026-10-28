@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CadastroClientes.Api/CadastroClientes.Api.csproj" />
+    <Project Path="src/CadastroClientes.Application/CadastroClientes.Application.csproj" />
+    <Project Path="src/CadastroClientes.Domain/CadastroClientes.Domain.csproj" />
+    <Project Path="src/CadastroClientes.Infrastructure/CadastroClientes.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CadastroClientes.UnitTests/CadastroClientes.UnitTests.csproj" />
+  </Folder>
+</Solution>
