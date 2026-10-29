@@ -31,7 +31,8 @@ Os serviços trocam eventos por um **RabbitMQ único**. Com os repositórios clo
 ```
 pasta/
 ├── cadastro-clientes-service
-└── proposta-credito-service
+├── proposta-credito-service
+└── cartao-credito-service
 ```
 
 rode a partir deste repositório:
@@ -44,7 +45,10 @@ docker compose -f docker-compose.fluxo-completo.yml up -d --build
 |---|---|
 | Cadastro de Clientes | http://localhost:8081/swagger |
 | Proposta de Crédito | http://localhost:8082/swagger |
+| Cartão de Crédito | http://localhost:8083/swagger |
 | Painel do RabbitMQ | http://localhost:15672 (guest / guest) |
+
+Cadastre um cliente e, com o `id` devolvido, consulte `GET http://localhost:8082/api/v1/propostas/{id}` e `GET http://localhost:8083/api/v1/cartoes/{id}`.
 
 ### Opção 1 — só este serviço no Docker
 

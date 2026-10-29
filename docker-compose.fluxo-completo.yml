@@ -3,6 +3,7 @@
 # Pré-requisito: os repositórios clonados lado a lado, na mesma pasta:
 #   ./cadastro-clientes-service
 #   ./proposta-credito-service
+#   ./cartao-credito-service
 #
 # Uso (dentro de cadastro-clientes-service):
 #   docker compose -f docker-compose.fluxo-completo.yml up -d --build
@@ -92,6 +93,40 @@ services:
       timeout: 3s
       retries: 10
 
+  # ---------- Cartão de Crédito ----------
+  cartao-api:
+    build: ../cartao-credito-service
+    container_name: cartao-api
+    environment:
+      <<: *rabbitmq-env
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__CartaoDb: "Host=cartao-postgres;Port=5432;Database=cartao;Username=postgres;Password=postgres"
+    ports:
+      - "8083:8080"
+    depends_on:
+      cartao-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  cartao-postgres:
+    image: postgres:17-alpine
+    container_name: cartao-postgres
+    environment:
+      POSTGRES_DB: cartao
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - cartao-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cartao"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 volumes:
   cadastro-pgdata:
   proposta-pgdata:
+  cartao-pgdata:
