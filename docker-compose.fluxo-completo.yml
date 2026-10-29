@@ -1,0 +1,97 @@
+# Fluxo completo: Cadastro → Proposta → Cartão com um único RabbitMQ.
+#
+# Pré-requisito: os repositórios clonados lado a lado, na mesma pasta:
+#   ./cadastro-clientes-service
+#   ./proposta-credito-service
+#
+# Uso (dentro de cadastro-clientes-service):
+#   docker compose -f docker-compose.fluxo-completo.yml up -d --build
+name: credito
+
+x-rabbitmq-env: &rabbitmq-env
+  RabbitMq__Host: rabbitmq
+  RabbitMq__Username: guest
+  RabbitMq__Password: guest
+
+services:
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    container_name: credito-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ---------- Cadastro de Clientes ----------
+  cadastro-api:
+    build: .
+    container_name: cadastro-api
+    environment:
+      <<: *rabbitmq-env
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__CadastroDb: "Host=cadastro-postgres;Port=5432;Database=cadastro;Username=postgres;Password=postgres"
+    ports:
+      - "8081:8080"
+    depends_on:
+      cadastro-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  cadastro-postgres:
+    image: postgres:17-alpine
+    container_name: cadastro-postgres
+    environment:
+      POSTGRES_DB: cadastro
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - cadastro-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cadastro"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ---------- Proposta de Crédito ----------
+  proposta-api:
+    build: ../proposta-credito-service
+    container_name: proposta-api
+    environment:
+      <<: *rabbitmq-env
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__PropostaDb: "Host=proposta-postgres;Port=5432;Database=proposta;Username=postgres;Password=postgres"
+    ports:
+      - "8082:8080"
+    depends_on:
+      proposta-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  proposta-postgres:
+    image: postgres:17-alpine
+    container_name: proposta-postgres
+    environment:
+      POSTGRES_DB: proposta
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - proposta-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d proposta"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  cadastro-pgdata:
+  proposta-pgdata:

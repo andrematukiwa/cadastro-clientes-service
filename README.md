@@ -24,13 +24,35 @@ Cadastro de Clientes ──ClienteCadastrado──▶ Proposta de Crédito ─�
 - [Docker](https://www.docker.com/) — para rodar tudo em containers
 - [.NET SDK 10](https://dotnet.microsoft.com/download/dotnet/10.0) — apenas para rodar fora do Docker ou executar os testes
 
-### Opção 1 — tudo no Docker (recomendado)
+### Fluxo completo (Cadastro → Proposta → Cartão)
+
+Os serviços trocam eventos por um **RabbitMQ único**. Com os repositórios clonados **lado a lado na mesma pasta**:
+
+```
+pasta/
+├── cadastro-clientes-service
+└── proposta-credito-service
+```
+
+rode a partir deste repositório:
+
+```bash
+docker compose -f docker-compose.fluxo-completo.yml up -d --build
+```
+
+| Serviço | Swagger |
+|---|---|
+| Cadastro de Clientes | http://localhost:8081/swagger |
+| Proposta de Crédito | http://localhost:8082/swagger |
+| Painel do RabbitMQ | http://localhost:15672 (guest / guest) |
+
+### Opção 1 — só este serviço no Docker
 
 ```bash
 docker compose up -d --build
 ```
 
-Sobe a API, o PostgreSQL e o RabbitMQ. As migrations são aplicadas automaticamente na inicialização.
+Sobe a API, o PostgreSQL e o RabbitMQ. As migrations são aplicadas automaticamente na inicialização. Rode um compose de cada vez: os dois usam as mesmas portas.
 
 | Recurso | Endereço |
 |---|---|
