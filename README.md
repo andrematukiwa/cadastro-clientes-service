@@ -83,6 +83,8 @@ A API sobe em http://localhost:5138 e abre o Swagger. O arquivo [`CadastroClient
 dotnet test
 ```
 
+Os testes de unidade cobrem a regra do CPF (dígitos verificadores, formato e máscara), a normalização do cliente, cada limite do validador dos dois lados (nome, idade de 18 e 120 anos, e-mail, renda e casas decimais) e o serviço de cadastro: gravação com publicação do evento, CPF e e-mail duplicados e request inválido. Repositório, publisher e unit of work são substituídos por mocks (NSubstitute), e o relógio por `FakeTimeProvider`.
+
 ## Endpoints
 
 | Método | Rota | Descrição | Respostas |
